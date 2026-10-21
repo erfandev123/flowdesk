@@ -1,0 +1,25 @@
+services:
+  flowdesk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flowdesk:latest
+    container_name: flowdesk
+    restart: unless-stopped
+    ports:
+      - "4318:4318"
+    environment:
+      NODE_ENV: production
+      PORT: "4318"
+      DATA_DIR: /data
+    volumes:
+      - flowdesk-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4318/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  flowdesk-data:

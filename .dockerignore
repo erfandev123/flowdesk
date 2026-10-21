@@ -1,0 +1,37 @@
+# Dependencies are installed inside the image
+node_modules
+**/node_modules
+
+# Build output (rebuilt inside the image)
+**/dist
+**/build
+**/bin
+**/obj
+*.tsbuildinfo
+
+# Runtime data must never be baked into the image
+**/data
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Version control and editor
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# QA artifacts
+screenshots
+docs
