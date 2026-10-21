@@ -36,16 +36,36 @@ node scripts/export-sql.js  # regenerate database/schema.sql and seed.sql
 
 ```
 Node Project/
-├── server/src/db.js        Schema (CREATE TABLE IF NOT EXISTS), scrypt hashing,
-│                           uid()/nowISO()/today() helpers
-├── server/src/server.js    Express app: routers, auth, role guards, static host
-├── server/src/seed.js      Demo workspace generator
+├── server/src/
+│   ├── config.js         PORT, cookie name, role level, demo account
+│   ├── db.js             schema, indexes, query helpers, password hashing
+│   ├── seed-data.js      seedDemoWorkspace() — the demo workspace
+│   ├── seed.js           CLI wrapper for the seed
+│   ├── server.js         app setup, route mounting, static host, boot
+│   ├── middleware/
+│   │   ├── auth.js       requireAuth, requireBusiness, requireRole
+│   │   └── errors.js     HttpError, fail
+│   ├── routes/           one module per area
+│   │   ├── auth.js       register, login, logout, me, switch
+│   │   ├── business.js   settings, clients, products
+│   │   ├── billing.js    quotes, invoices, payments, reminders, recurring
+│   │   ├── team.js       members, roles
+│   │   ├── expenses.js
+│   │   ├── reports.js    dashboard, cashflow, velocity
+│   │   ├── exports.js    CSV
+│   │   └── portal.js     the public client portal
+│   ├── services/
+│   │   ├── money.js      invoiceTotals, quoteTotals, refreshInvoiceStatus
+│   │   └── reminders.js  buildReminder
+│   └── utils/
+│       ├── password.js   hashPassword, verifyPassword, generateTempPassword
+│       └── validation.js str, num, bool, oneOf, validateEmail, …
 └── web/src/
     ├── main.tsx            Routes, providers, guards
     ├── styles.css          Design tokens (@theme) + component classes
     ├── types.ts            Shared API types
     ├── context/AuthContext.tsx  User, business, session, workspace switching
-    ├── lib/api.ts          fetch wrapper — attaches cookies + x-business-id
+    ├── lib/api.ts          fetch wrapper + API_ENDPOINTS constants
     ├── lib/format.ts       Currency, date, relative-time formatting
     ├── components/         AppShell, Charts, Modal, StatusChip, Feedback
     └── pages/              One file per screen
@@ -68,6 +88,13 @@ Tables: `users`, `businesses`, `memberships`, `clients`, `products`, `quotes`,
 `reminders`, `sessions`.
 
 Money is stored as **integer cents**. Never use floats for money.
+
+### Boot behaviour
+
+`server.js` calls `seedOnBoot()` **before** `app.listen()`. When the database
+has no users, the demo workspace is created so the instance is usable
+immediately. This is what makes the app work on hosts with an ephemeral
+filesystem. Set `SEED_ON_BOOT=false` to disable it.
 
 ---
 
@@ -94,13 +121,16 @@ Money is stored as **integer cents**. Never use floats for money.
 ### Auth and roles
 
 - Passwords are hashed with `scrypt` (`hashPassword` / `verifyPassword` in
-  `db.js`). Never store or log plaintext passwords.
+  `utils/password.js`). Never store or log plaintext passwords.
 - **Every mutating route must carry a role guard.** The hierarchy is
   `owner > admin > member > viewer`; `viewer` is read-only.
   - Business data (clients, quotes, invoices, payments, expenses, products):
     `requireWrite` (`member`)
   - Workspace settings and team management: `requireAdmin`
+  - Reversing a recorded payment: `requireAdmin` — it changes what a client is
+    recorded as having paid
 - New endpoints must not be added without a guard.
+- Every lookup by primary key must include `AND business_id = ?`.
 
 ### API conventions
 

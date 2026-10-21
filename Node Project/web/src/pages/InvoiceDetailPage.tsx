@@ -15,7 +15,7 @@ import { Spinner, ErrorNote } from '../components/Feedback';
 export function InvoiceDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
-  const { business } = useAuth();
+  const { business, role } = useAuth();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [error, setError] = useState('');
   const [payOpen, setPayOpen] = useState(false);
@@ -54,6 +54,10 @@ export function InvoiceDetailPage() {
   const outstanding = invoice.total - invoice.paid_amount;
   const items = invoice.items ?? [];
   const paid = invoice.payments ?? [];
+
+  // Reversing a recorded payment is an administrative action, so the control
+  // is only shown to admins and owners.
+  const canManagePayments = role === 'admin' || role === 'owner';
 
   const openPay = () => {
     setPayAmount((outstanding / 100).toFixed(2));
@@ -328,12 +332,14 @@ export function InvoiceDetailPage() {
                         {p.reference && ` · ${p.reference}`}
                       </span>
                     </span>
-                    <button onClick={() => deletePayment(p.id)}
-                      className="w-8 h-8 grid place-items-center rounded-lg text-ink-soft hover:bg-danger-50
-                        hover:text-danger-600 transition-colors cursor-pointer"
-                      aria-label="Delete payment">
-                      <Trash size={15} aria-hidden="true" />
-                    </button>
+                    {canManagePayments && (
+                      <button onClick={() => deletePayment(p.id)}
+                        className="w-8 h-8 grid place-items-center rounded-lg text-ink-soft hover:bg-danger-50
+                          hover:text-danger-600 transition-colors cursor-pointer"
+                        aria-label="Reverse payment">
+                        <Trash size={15} aria-hidden="true" />
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

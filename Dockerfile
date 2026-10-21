@@ -11,6 +11,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4318
 ENV DATA_DIR=/data
+# The server re-seeds the demo workspace whenever the database is empty, so a
+# container with an ephemeral filesystem still comes up with a usable demo.
+ENV SEED_ON_BOOT=true
 
 RUN addgroup -S flowdesk && adduser -S flowdesk -G flowdesk \
  && mkdir -p /data && chown -R flowdesk:flowdesk /data /app
@@ -31,6 +34,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4318
 ENV DATA_DIR=/data
+ENV SEED_ON_BOOT=true
 
 RUN addgroup -S flowdesk && adduser -S flowdesk -G flowdesk \
  && mkdir -p /data && chown -R flowdesk:flowdesk /data /app
@@ -42,7 +46,7 @@ USER flowdesk
 VOLUME ["/data"]
 EXPOSE 4318
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||4318)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "server/src/server.js"]

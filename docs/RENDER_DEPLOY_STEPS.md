@@ -96,13 +96,13 @@ first time. Watch the **Logs** tab.
 
 ---
 
-## 7. Add a disk — DO NOT SKIP
+## 7. Add a disk — only for a paid plan
 
-Without a disk, the SQLite database is wiped on every deploy and the demo will
-be empty.
+On a **paid** instance you can attach a persistent disk so the database
+survives restarts:
 
 1. Open your service dashboard
-2. Click **Disks** in the left sidebar (or scroll to it on the service page)
+2. Click **Disks** in the left sidebar
 3. Click **Add Disk**
 4. Fill in:
 
@@ -112,17 +112,19 @@ be empty.
    | Mount Path | `/var/data` |
    | Size | `1` GB |
 
-5. Click **Save** and **Deploy** (Render restarts the service when a disk is
-   attached)
-
-> The free tier allows one 1 GB disk. This is what keeps `DATA_DIR=/var/data`
-> persistent.
+**On the free tier this option is not available** — free instances cannot have
+a persistent disk. That is fine: the server re-seeds the demo workspace by
+itself whenever the database is empty, so the demo works either way. See
+`docs/DEPLOY_FOR_DEMO.md` for the full explanation.
 
 ---
 
-## 8. Seed the demo data
+## 8. Seed the demo data — optional
 
-1. Open the service page → **Shell** tab
+The server seeds the demo workspace automatically on boot when the database is
+empty, so you can skip this. If you want to seed by hand:
+
+1. Open the service page → **Shell** tab (paid plans)
 2. Run:
 
    ```bash
@@ -134,14 +136,11 @@ be empty.
 
    ```
    Seed complete.
-     Login: demo@flowdesk.app / demo1234
-     Business: Northlight Studio (b_...)
+     Login: demo@flowdesk.app
    ```
 
-> If the shell tab is unavailable on the free tier, use **Environment** →
-> **Pre-deploy Command** instead and set it to
-> `cd "Node Project" && node server/src/seed.js`. The seed script is safe to
-> run repeatedly — it exits early if the demo account already exists.
+> The seed script is safe to run repeatedly — it exits early if the demo
+> account already exists.
 
 ---
 
@@ -177,10 +176,10 @@ Demo credentials: demo@flowdesk.app / demo1234
 | Build fails immediately | Root Directory is not `Node Project` |
 | "Module not found: express" | Build command missing `npm --prefix server ci --omit=dev` |
 | Site 404s after build | Start Command must be `node server/src/server.js` |
-| Demo shows an empty dashboard | Seed did not run — do step 8 again |
-| Data disappears on every deploy | No disk attached — do step 7 |
+| Demo shows an empty dashboard | The server seeds on boot — check the logs for `[flowdesk] seeded demo workspace`. If you set `SEED_ON_BOOT=false`, run the seed manually. |
+| Data disappears on every deploy | Expected on the free tier: the filesystem is ephemeral and the demo re-seeds itself. Attach a disk on a paid plan for permanent storage. |
 | First load takes ~1 minute | Free tier sleep — open the URL before the reviewer looks |
-| Shell tab missing | Use a pre-deploy command instead |
+| Shell tab missing | Use a pre-deploy command instead, or rely on the automatic seed |
 
 ---
 

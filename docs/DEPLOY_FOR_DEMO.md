@@ -60,27 +60,63 @@ On [render.com](https://render.com):
 
 ### 3. Create the demo data
 
-Render's shell or a one-off command:
+**You do not have to.** Flowdesk seeds the demo workspace by itself.
+
+The server checks the database on every boot. If there are no users, it creates
+the demo workspace — clients, catalog, quotes, invoices, payments, expenses —
+before it starts listening. So the demo is populated on the very first request
+and after every restart.
+
+Set `SEED_ON_BOOT=false` to turn this off in a real deployment.
+
+If you want to seed by hand instead:
 
 ```bash
 cd "Node Project"
 node server/src/seed.js
 ```
 
-Or add a **Pre-deploy Command**. The seed script is safe to run repeatedly —
-it exits early if the demo account already exists.
-
 ### 4. Your demo URL
 
 ```
-https://flowdesk-xxxx.onrender.com
+https://flowdesk-demo-xxxx.onrender.com
 ```
 
 Demo credentials: `demo@flowdesk.app` / `demo1234`
 
 > Render's free tier spins down after 15 minutes of inactivity, so the first
-> load can take up to a minute. **Ping the URL a few minutes before you
+> load can take up to a minute. **Open the URL a few minutes before you
 > submit** so it is warm.
+
+---
+
+## ⚠️ Free tier and the SQLite file
+
+This matters, so here is the honest picture.
+
+| | Free instance | Paid instance |
+|---|---|---|
+| Cost | $0 | from $7/month |
+| Persistent disk | **not available** | $0.25/GB/month |
+| Filesystem on restart | **wiped** | preserved with a disk |
+| Demo data | **recreated automatically on boot** | preserved |
+
+Render's free web services have an **ephemeral filesystem**: the SQLite file
+is deleted every time the service redeploys, restarts, or spins down after
+15 minutes idle. A free instance also **cannot** have a persistent disk
+attached, so there is no way to keep the file across restarts.
+
+**This is fine for a demo, because the app re-seeds itself.** The sequence is:
+
+1. The service spins down after 15 minutes idle.
+2. A visitor opens your URL.
+3. Render restarts the container.
+4. The server finds an empty database and creates the demo workspace.
+5. The visitor sees the full demo.
+
+It costs a few seconds of start-up time on the first request after a sleep.
+If that matters to you, upgrading to the $7/month plan gives you a persistent
+disk and no sleep.
 
 ---
 

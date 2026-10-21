@@ -175,9 +175,30 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_clients_business ON clients(business_id);
+CREATE INDEX idx_clients_business_name ON clients(business_id, name);
+CREATE INDEX idx_clients_portal_token ON clients(portal_token);
+CREATE INDEX idx_expenses_business ON expenses(business_id);
+CREATE INDEX idx_expenses_business_date ON expenses(business_id, expense_date);
 CREATE INDEX idx_invoice_items_invoice ON invoice_items(invoice_id);
+CREATE INDEX idx_invoice_items_product ON invoice_items(product_id);
 CREATE INDEX idx_invoices_business ON invoices(business_id);
+CREATE INDEX idx_invoices_business_issue ON invoices(business_id, issue_date);
+CREATE INDEX idx_invoices_business_paid ON invoices(business_id, paid_at);
+CREATE INDEX idx_invoices_business_status ON invoices(business_id, status);
+CREATE INDEX idx_invoices_client ON invoices(client_id);
+CREATE INDEX idx_invoices_recurring ON invoices(business_id, recurring_rule);
+CREATE INDEX idx_memberships_business ON memberships(business_id);
+CREATE INDEX idx_memberships_user ON memberships(user_id);
+CREATE INDEX idx_payments_business ON payments(business_id);
 CREATE INDEX idx_payments_invoice ON payments(invoice_id);
+CREATE INDEX idx_products_business ON products(business_id);
+CREATE INDEX idx_quote_items_product ON quote_items(product_id);
 CREATE INDEX idx_quote_items_quote ON quote_items(quote_id);
+CREATE INDEX idx_quotes_business ON quotes(business_id);
+CREATE INDEX idx_quotes_business_status ON quotes(business_id, status);
+CREATE INDEX idx_quotes_client ON quotes(client_id);
+CREATE INDEX idx_reminders_invoice ON reminders(invoice_id);
+CREATE INDEX idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX idx_sessions_user ON sessions(user_id);
 
 PRAGMA foreign_keys = ON;

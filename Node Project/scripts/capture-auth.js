@@ -2,6 +2,7 @@
 // Usage: node scripts/capture-auth.js <name> <path> [width] [height] [fullPage]
 import fs from 'node:fs';
 import path from 'node:path';
+import { DEMO_EMAIL, DEMO_PASSWORD } from './config.js';
 
 const CDP = 'http://127.0.0.1:9222';
 const API = 'http://127.0.0.1:4318';
@@ -18,7 +19,7 @@ if (!name) {
 const loginRes = await fetch(`${API}/api/auth/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: 'demo@flowdesk.app', password: 'demo1234' }),
+  body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
 });
 if (!loginRes.ok) {
   console.error('login failed', loginRes.status, await loginRes.text());

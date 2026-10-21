@@ -77,6 +77,12 @@ origin  https://github.com/erfandev123/flowdesk.git
 
 So there is nothing to clean up locally — just revoke the token on GitHub.
 
+> **Example of the shape of a personal access token** (not a real one):
+> `ghp_YOUR_PERSONAL_ACCESS_TOKEN_HERE`. GitHub prefixes personal access
+> tokens with `ghp_`. If you find a string in your history that starts with
+> `ghp_` and is not this placeholder, treat it as a live credential and revoke
+> it.
+
 ---
 
 ## Checklist

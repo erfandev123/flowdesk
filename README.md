@@ -15,9 +15,10 @@ Self-hosted. White-label ready. Zero native dependencies.
 cd "Node Project"
 npm run install:all
 npm run seed
-npm run build
-npm start
+npm run serve
 ```
+
+`npm run serve` builds the web app and then serves everything from one port.
 
 Open <http://localhost:4318> and sign in:
 
@@ -33,6 +34,12 @@ Full step-by-step instructions, deployment options and troubleshooting are in
 > credentials above. See [docs/DEPLOY_FOR_DEMO.md](docs/DEPLOY_FOR_DEMO.md) to
 > publish your own instance in about 15 minutes on a free tier.
 
+### Requirements
+
+**Node.js 22.5 or newer** (24 LTS recommended) — Flowdesk stores its data in
+SQLite through Node's built-in `node:sqlite` module. No database server to
+install, nothing to compile.
+
 ---
 
 ## What it does
@@ -43,7 +50,7 @@ Full step-by-step instructions, deployment options and troubleshooting are in
 | **Clients** | CRM with lifetime value, outstanding balance, invoice count, notes, and a private portal link per client |
 | **Quotes** | Create, send, accept, decline — convert an accepted quote into a numbered invoice in one click |
 | **Invoices** | Line items with per-line tax, discount, currency, sequential numbering with a configurable prefix, print-ready document |
-| **Payments** | Partial or full payments with method, reference and note; one-click reversal with automatic recalculation |
+| **Payments** | Partial or full payments with method, reference and note; one-click reversal (admin only) with automatic recalculation |
 | **Recurring billing** | Weekly / monthly / quarterly / yearly schedules with one-click generation of the next invoice |
 | **Reminders** | Auto-generated email, SMS and WhatsApp chase messages built from your own template |
 | **Client portal** | A private token URL — clients review invoices and pay, no account and no password needed |
@@ -181,6 +188,7 @@ workspace.
 | [docs/ERD.md](docs/ERD.md) | Data model and entity relationships |
 | [docs/FEATURES.md](docs/FEATURES.md) | Detailed feature reference |
 | [docs/SECURITY.md](docs/SECURITY.md) | Authentication model and role matrix |
+| [docs/DEPENDENCY-AUDIT.md](docs/DEPENDENCY-AUDIT.md) | Audit result and every pinned version |
 | [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md) | Requirement-by-requirement submission checklist |
 | [docs/DEPLOY_FOR_DEMO.md](docs/DEPLOY_FOR_DEMO.md) | How to publish a live demo |
 

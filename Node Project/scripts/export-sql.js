@@ -96,10 +96,10 @@ const TABLES = [
 ];
 
 const TABLE_NOTES = {
-  users: 'Demo owner account. Password for demo@flowdesk.app is "demo1234"\n-- (stored as a scrypt hash with a per-user random salt).',
+  users: 'Demo owner account. See HowToSetup.md section 5 for the demo credentials.',
   businesses: 'One demo workspace: Northlight Studio.',
   memberships: 'Links the owner to the workspace.',
-  clients: 'Seven demo clients with realistic contact details.',
+  clients: 'Seven demo clients with fictional contact details.',
   products: 'Service catalog used by the demo invoices.',
   quotes: 'Demo quotes in different pipeline states.',
   quote_items: 'Line items belonging to the demo quotes.',
@@ -118,10 +118,8 @@ let seed = `-- =================================================================
 --   sqlite3 flowdesk.db < database/schema.sql
 --   sqlite3 flowdesk.db < database/seed.sql
 --
--- Creates one demo workspace you can sign into immediately:
---
---   Email:    demo@flowdesk.app
---   Password: demo1234
+-- Creates one demo workspace you can sign into immediately. The demo
+-- credentials are documented in HowToSetup.md, section 5.
 --
 -- The demo account is intentionally included so a reviewer can explore the
 -- application without creating anything. It holds no real customer data.

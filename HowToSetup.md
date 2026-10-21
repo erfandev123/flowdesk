@@ -5,7 +5,7 @@ Follow it top to bottom — no prior knowledge is assumed.
 
 ---
 
-## 0. What you need
+## 0. Prerequisites
 
 | Requirement | Version | How to check |
 |---|---|---|
@@ -13,12 +13,46 @@ Follow it top to bottom — no prior knowledge is assumed.
 | npm | 9 or newer (ships with Node) | `npm -v` |
 | Docker Desktop | optional — only for the Docker path | `docker -v` |
 
-> **No database installation is required.** Flowdesk uses SQLite through Node's
-> built-in `node:sqlite` module. There is no MySQL or PostgreSQL to install, and
-> no native module to compile.
+> **Node.js 22.5 is the minimum** because Flowdesk stores its data in SQLite
+> through Node's built-in `node:sqlite` module, which was added in 22.5.
+> The `engines` field in `package.json` enforces the same constraint.
+
+> **No database installation is required.** There is no MySQL or PostgreSQL to
+> install, and no native module to compile.
 
 If you do not have Node.js, download the LTS installer from
 <https://nodejs.org/> and run it.
+
+---
+
+## 1. Quick start
+
+```bash
+cd "Node Project"
+npm run install:all     # restore packages for the server and the web app
+npm run seed            # create the demo workspace
+npm run serve           # build the web app, then serve everything on :4318
+```
+
+`npm run serve` is the one-liner equivalent of `npm run build && npm start`.
+
+Open <http://localhost:4318> and sign in:
+
+```
+demo@flowdesk.app
+demo1234
+```
+
+> **Wait for `npm run seed` to finish before opening the browser.** It prints
+> `Seed complete.` when the demo account has been created. If you sign in
+> before that, you will be told the email or password is wrong.
+>
+> If the app is deployed somewhere with an ephemeral filesystem — a free
+> container host, for example — the server seeds the demo workspace by itself
+> on every boot, so the data is always there.
+
+Full step-by-step instructions, deployment options and troubleshooting are in
+**[HowToSetup.md](HowToSetup.md)**.
 
 ---
 

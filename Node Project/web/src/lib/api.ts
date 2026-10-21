@@ -2,6 +2,29 @@ import type { Business } from '../types';
 
 const BASE = '/api';
 
+/**
+ * Every API path in one place, so a route rename never leaves a stale string
+ * behind in a component.
+ */
+export const API_ENDPOINTS = {
+  AUTH_REGISTER: '/auth/register',
+  AUTH_LOGIN: '/auth/login',
+  AUTH_LOGOUT: '/auth/logout',
+  AUTH_ME: '/auth/me',
+  AUTH_SWITCH: '/auth/switch',
+  BUSINESS: '/business',
+  TEAM: '/team',
+  CLIENTS: '/clients',
+  PRODUCTS: '/products',
+  QUOTES: '/quotes',
+  INVOICES: '/invoices',
+  RECURRING: '/recurring',
+  EXPENSES: '/expenses',
+  DASHBOARD: '/dashboard',
+  REPORTS_CASHFLOW: '/reports/cashflow',
+  REPORTS_VELOCITY: '/reports/invoice-velocity',
+} as const;
+
 let businessId: string | null = localStorage.getItem('fd_business');
 
 export function setActiveBusiness(id: string) {

@@ -42,8 +42,7 @@ export function LoginPage() {
           password: form.password,
           business_name: form.business_name || `${form.name}'s Studio`,
         });
-      }
-      navigate('/app', { replace: true });
+      }      navigate('/app', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {

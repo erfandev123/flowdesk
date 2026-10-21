@@ -183,7 +183,7 @@ interface is never the only protection.
 | `requireAuth` | signed in | All non-public routes |
 | `requireBusiness` | workspace member | All business routes |
 | `requireWrite` | `member` or above | Clients, products, quotes, invoices, payments, reminders, recurring, expenses |
-| `requireAdmin` | `admin` or above | Workspace settings and branding, team management |
+| `requireAdmin` | `admin` or above | Workspace settings and branding, team management, **reversing a recorded payment** |
 
 Role hierarchy: `owner` > `admin` > `member` > `viewer`. A `viewer` is
 read-only and receives `403` on every write attempt.
@@ -198,11 +198,24 @@ read-only and receives `403` on every write attempt.
 | Viewer records a payment | `403` |
 | Viewer changes workspace settings | `403` |
 | Viewer invites a team member | `403` |
+| Member reverses a payment | `403` |
 | No session, any write | `401` |
 | Viewer reads data | allowed |
+| Member records a payment | allowed |
+| Admin reverses a payment | allowed |
+
+The guards live in one place — `server/src/middleware/auth.js` — so they can
+be reviewed without reading the route handlers.
+
+### Multi-tenant isolation ✅
+
+The `x-business-id` header is **never trusted on its own**. `requireBusiness`
+verifies it against the `memberships` table before any business query runs,
+and every lookup by primary key additionally filters on `business_id`.
 
 Admin areas are role-protected: the Team page and the Settings page require
-`admin`. The owner's role cannot be changed and the owner cannot be removed.
+`admin`. The owner's role cannot be changed, the owner cannot be removed, and
+the last remaining owner of a workspace can never be deleted.
 
 The full matrix is in `docs/SECURITY.md`.
 
@@ -213,7 +226,11 @@ Both lockfiles are committed:
 - `Node Project/server/package-lock.json`
 - `Node Project/web/package-lock.json`
 
-`npm ci` restores the exact versions in this release.
+Every dependency is pinned to an **exact version** — there are no caret ranges
+in either `package.json`. `npm ci` restores exactly these versions.
+
+**`npm audit` reports 0 vulnerabilities in both workspaces.** The result and
+every pinned version are recorded in `docs/DEPENDENCY-AUDIT.md`.
 
 The runtime dependency surface is deliberately tiny — `express` and
 `cookie-parser` on the server, nothing on the browser side beyond React, the
@@ -223,8 +240,7 @@ date library and no native module.
 To re-check for advisories:
 
 ```bash
-cd "Node Project/server" && npm audit
-cd "Node Project/web"    && npm audit
+cd "Node Project" && npm run audit
 ```
 
 ### 7. Documentation set ✅
@@ -234,33 +250,44 @@ cd "Node Project/web"    && npm audit
 | `README.md` | Overview, feature table, stack, architecture, role matrix, API tour, project layout |
 | `HowToSetup.md` | Requirements, install, database creation, run, configuration, four deployment paths, backups, verification, troubleshooting, security checklist |
 | `CLAUDE.md` | Architecture, request pipeline, conventions (money, dates, SQL, auth, API, frontend), how to add a feature, what not to do |
-| `CHANGELOG.md` | Full 1.0.0 release notes and known limitations |
+| `CHANGELOG.md` | Full 1.0.1 release notes and known limitations |
 | `LICENSE-NOTE.md` | MIT summary, what you may and may not do, third-party licences |
 | `LICENSE` | The full MIT licence text |
 | `docs/API.md` | Every endpoint with request and response shapes |
 | `docs/ERD.md` | Full data model with the ER diagram and table reference |
 | `docs/SECURITY.md` | Auth model, role matrix, isolation, known limitations |
 | `docs/FEATURES.md` | Detailed feature reference |
+| `docs/DEPENDENCY-AUDIT.md` | Audit result and every pinned version |
 | `docs/DEPLOY_FOR_DEMO.md` | How to publish a live demo |
+| `docs/RENDER_DEPLOY_STEPS.md` | Screen-by-screen Render walkthrough |
 | `docs/BUYER_GUIDE.md` | Handover guide for whoever runs it |
 | `docs/PRICING.md` | Price sheet and pitch script |
 | `docs/SELLING_POST.md` | Ready-to-copy marketing posts |
+| `docs/REVOKE_TOKEN.md` | How to revoke a GitHub token after pushing |
 
 ### 8. Working live demo — you need to publish this ⚠️
 
 This is the one item that **cannot be satisfied from the archive alone**. You
 need to deploy the app and submit the resulting URL.
 
-Follow `docs/DEPLOY_FOR_DEMO.md`. The fastest route is Render:
+Follow `docs/DEPLOY_FOR_DEMO.md` and `docs/RENDER_DEPLOY_STEPS.md`. The
+fastest route is Render:
 
 1. Push `Node Project/` to GitHub.
 2. Render → New Web Service → root directory `Node Project`.
 3. Build: `npm --prefix web ci && npm --prefix web run build && npm --prefix server ci --omit=dev`
 4. Start: `node server/src/server.js`
 5. Health check: `/api/health`
-6. Attach a disk at `/var/data`, set `DATA_DIR=/var/data`.
-7. Run the seed once: `node server/src/seed.js`.
-8. Your URL looks like `https://flowdesk-xxxx.onrender.com`.
+6. Your URL looks like `https://flowdesk-xxxx.onrender.com`
+
+**The demo data seeds itself.** The server creates the demo workspace on boot
+whenever the database is empty, so the demo is populated even on a host with an
+ephemeral filesystem where the SQLite file is wiped on every restart. You do
+not need a persistent disk, and you do not need to run the seed by hand.
+
+> Render's **free** instances cannot attach a persistent disk, and their
+> filesystem is wiped on every spin-down and redeploy. The automatic seeding
+> is what makes the demo work anyway. See `docs/DEPLOY_FOR_DEMO.md`.
 
 **Credentials to submit:**
 

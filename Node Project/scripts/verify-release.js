@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { DEMO_EMAIL, DEMO_PASSWORD } from './config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const NODE_PROJECT = path.join(__dirname, '..');
@@ -183,7 +184,7 @@ step('Signing in with the demo credentials');
 const loginRes = await fetch(`http://127.0.0.1:${PORT}/api/auth/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: 'demo@flowdesk.app', password: 'demo1234' }),
+  body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
 });
 if (!loginRes.ok) {
   child.kill();

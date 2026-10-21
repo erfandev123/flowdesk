@@ -30,8 +30,11 @@ export function hashPassword(password) {
 ## 2. Sessions
 
 - On sign-in a random 32-byte token is generated and stored in `sessions`.
-- The token is delivered as an **HTTP-only, SameSite=Lax** cookie named
+- The token is delivered as an **HTTP-only, SameSite=Strict** cookie named
   `fd_session`.
+- In production the cookie is also marked **Secure**, so it is never sent over
+  plain HTTP. Set `COOKIE_SECURE=false` only when testing a production build
+  over plain HTTP on localhost.
 - Sessions expire after **30 days** and are checked on every request.
 - Expired or revoked sessions are deleted server-side.
 - Sign-out destroys the row and clears the cookie.
@@ -88,7 +91,8 @@ the threshold.
 | Convert a quote into an invoice | ❌ | ✅ | ✅ | ✅ |
 | Create / edit / delete invoices | ❌ | ✅ | ✅ | ✅ |
 | Mark an invoice as sent | ❌ | ✅ | ✅ | ✅ |
-| Record / reverse payments | ❌ | ✅ | ✅ | ✅ |
+| Record a payment | ❌ | ✅ | ✅ | ✅ |
+| **Reverse a recorded payment** | ❌ | ❌ | ✅ | ✅ |
 | Generate a payment reminder | ❌ | ✅ | ✅ | ✅ |
 | Generate the next recurring invoice | ❌ | ✅ | ✅ | ✅ |
 | Create / edit / delete expenses | ❌ | ✅ | ✅ | ✅ |
@@ -97,9 +101,14 @@ the threshold.
 | Change the owner's role | ❌ | ❌ | ❌ | ❌ |
 | Remove the workspace owner | ❌ | ❌ | ❌ | ❌ |
 
+Recording a payment is routine work, so a `member` can do it. **Reversing** a
+recorded payment changes what a client is recorded as having paid, so it is
+treated as an administrative action and requires `admin`.
+
 Enforcement is in code, not in the UI. Hiding a button in the interface is
 never the only protection — the API rejects the request with `403` regardless
-of what the client sends.
+of what the client sends. The user interface mirrors the same rule, so the
+reverse-payment control is only rendered for admins and owners.
 
 ---
 
@@ -199,13 +208,16 @@ These are deliberate trade-offs, listed for honesty:
   limit or a library such as `express-rate-limit` before exposing the service
   publicly.
 - **No two-factor authentication.**
-- **No CSRF token.** The `SameSite=Lax` cookie prevents cross-site form
-  submissions in modern browsers, and every mutating endpoint uses JSON
-  bodies with a non-simple content type, but an explicit token would be
-  stronger for older browsers.
+- **No CSRF token.** The `SameSite=Strict` cookie prevents cross-site requests
+  entirely in modern browsers, and every mutating endpoint uses a JSON body
+  with a non-simple content type, but an explicit token would be stronger for
+  older browsers.
 - **No audit log.** Role changes, settings changes and deletions are not
   recorded.
 - **Portal tokens do not expire.** Rotate them if a link leaks.
+- **The demo workspace is seeded automatically on boot** when the database is
+  empty, so the app stays usable on hosts with an ephemeral filesystem. Set
+  `SEED_ON_BOOT=false` and delete the demo account before real use.
 
 ---
 
